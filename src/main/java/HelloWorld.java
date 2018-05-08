@@ -42,6 +42,6 @@ public class HelloWorld {
         catch (IOException e){
             System.out.println("Error reading from user");
         }
-
+        System.out.println("Hello");
     }
 }
