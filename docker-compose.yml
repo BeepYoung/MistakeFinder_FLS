@@ -1,0 +1,14 @@
+version: '3'
+services:
+  web:
+    build: .
+    stdin_open: true
+    tty: true
+    ports:
+      - "8888:8888"
+    command: /usr/bin/docker-quickstart
+    hostname: quickstart.cloudera
+    privileged: true
+    volumes:
+      - ./out/artifacts/testApp_jar:/project
+
