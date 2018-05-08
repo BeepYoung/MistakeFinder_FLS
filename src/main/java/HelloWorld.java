@@ -27,9 +27,6 @@ public class HelloWorld {
                 .json(args[0]);*/
         df.show();
         df.printSchema();
-        /*JavaRDD<String> lines = sc.textFile(args[0]);
-        JavaRDD<Integer> lineLengths = lines.map(s -> s.length());
-        int totalLength = lineLengths.reduce((a, b) -> a + b);
-        System.out.println("\n\n\nTotal length is "+totalLength+"\n\n\n");*/
+
     }
 }
