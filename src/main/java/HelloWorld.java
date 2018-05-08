@@ -10,6 +10,7 @@ import java.util.List;
 
 //hdfs://quickstart.cloudera:8020/user/root/... path
 
+//spark-submit --packages com.databricks:spark-csv_2.10:1.5.0  testApp.jar testProg/*
 
 public class HelloWorld {
     public  static void main(String args[]){
@@ -23,10 +24,10 @@ public class HelloWorld {
                 .option("header","true")
                 .load(args[0]);
 
-        /*DataFrame df = sqlContext.read()
-                .json(args[0]);*/
         df.show();
         df.printSchema();
+
+
 
     }
 }
