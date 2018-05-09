@@ -3,6 +3,7 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.DataFrame;
 import org.apache.spark.sql.SQLContext;
+import org.apache.spark.sql.SaveMode;
 import org.apache.spark.sql.types.StructType;
 
 import java.util.ArrayList;
@@ -18,16 +19,27 @@ public class HelloWorld {
         JavaSparkContext sc = new JavaSparkContext(conf);
         SQLContext sqlContext = new org.apache.spark.sql.SQLContext(sc);
 
-        DataFrame df = sqlContext.read()
+        DataFrame sellerTaxTable = sqlContext.read()
                 .format("com.databricks.spark.csv")
                 .option("inferSchema","true")
                 .option("header","true")
                 .load(args[0]);
 
-        df.show();
-        df.printSchema();
+        DataFrame buyerTaxTable = sqlContext.read()
+                .format("com.databricks.spark.csv")
+                .option("inferSchema","true")
+                .option("header","true")
+                .load(args[1]);
 
+        DataFrame result = sellerTaxTable.join(buyerTaxTable,buyerTaxTable.col("SUM_TABLE_SALE").equalTo(sellerTaxTable.col("SUM_TABLE_PURCHASE")));
+       // DataFrame result = sellerTaxTable.filter(buyerTaxTable.col("INN_SALE").notEqual(sellerTaxTable.col("INN_SALE")));
 
+       //  DataFrame result = sellerTaxTable.join(buyerTaxTable,buyerTaxTable.col("INN_SALE").notEqual(sellerTaxTable.col("INN_SALE")));
 
+        sellerTaxTable.show();
+        buyerTaxTable.show();
+
+        result.show();
+        System.out.println("\nResult " +result.count()+" seller "+sellerTaxTable.count()+" buyer "+buyerTaxTable.count());
     }
 }
