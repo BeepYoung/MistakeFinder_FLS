@@ -19,6 +19,8 @@ public class HelloWorld {
         JavaSparkContext sc = new JavaSparkContext(conf);
         SQLContext sqlContext = new org.apache.spark.sql.SQLContext(sc);
 
+        sc.setLogLevel("ERROR");
+        System.out.println("Reading DFs");
         DataFrame sellerTaxTable = sqlContext.read()
                 .format("com.databricks.spark.csv")
                 .option("inferSchema","true")
@@ -31,15 +33,24 @@ public class HelloWorld {
                 .option("header","true")
                 .load(args[1]);
 
-        DataFrame result = sellerTaxTable.join(buyerTaxTable,buyerTaxTable.col("SUM_TABLE_SALE").equalTo(sellerTaxTable.col("SUM_TABLE_PURCHASE")));
-       // DataFrame result = sellerTaxTable.filter(buyerTaxTable.col("INN_SALE").notEqual(sellerTaxTable.col("INN_SALE")));
 
-       //  DataFrame result = sellerTaxTable.join(buyerTaxTable,buyerTaxTable.col("INN_SALE").notEqual(sellerTaxTable.col("INN_SALE")));
 
-        sellerTaxTable.show();
-        buyerTaxTable.show();
+        DataFrame tableWithMistakes = sellerTaxTable.join(buyerTaxTable,buyerTaxTable.col("INN_SALE").equalTo(sellerTaxTable.col("INN_SALE"))
+                .or(buyerTaxTable.col("KPP_SALE").equalTo(sellerTaxTable.col("KPP_SALE")))
+                .or(buyerTaxTable.col("SUM_TABLE_SALE").equalTo(sellerTaxTable.col("SUM_TABLE_PURCHASE")))
+                .or(buyerTaxTable.col("KPP_PURCHASE").equalTo(sellerTaxTable.col("KPP_PURCHASE")))
+                .or(buyerTaxTable.col("INN_PURCHASE").equalTo(sellerTaxTable.col("INN_PURCHASE")))
+                )
+                .filter(buyerTaxTable.col("SUM_TABLE_SALE").notEqual(sellerTaxTable.col("SUM_TABLE_PURCHASE"))
+                    .or(buyerTaxTable.col("KPP_SALE").notEqual(sellerTaxTable.col("KPP_SALE")))
+                    .or(buyerTaxTable.col("INN_SALE").notEqual(sellerTaxTable.col("INN_SALE")))
+                    .or(buyerTaxTable.col("KPP_PURCHASE").notEqual(sellerTaxTable.col("KPP_PURCHASE")))
+                    .or(buyerTaxTable.col("INN_PURCHASE").notEqual(sellerTaxTable.col("INN_PURCHASE")))
+                    )
 
-        result.show();
-        System.out.println("\nResult " +result.count()+" seller "+sellerTaxTable.count()+" buyer "+buyerTaxTable.count());
+               ;
+
+        tableWithMistakes.show();
+        System.out.println("Count of mistakes " + tableWithMistakes.count());
     }
 }
