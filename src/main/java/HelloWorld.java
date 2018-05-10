@@ -49,8 +49,22 @@ public class HelloWorld {
                     )
 
                ;
-
+        tableWithMistakes.persist();
         tableWithMistakes.show();
-        System.out.println("Count of mistakes " + tableWithMistakes.count());
+        tableWithMistakes.persist();
+        /*System.out.println("Count of mistakes " + tableWithMistakes.count());
+        String schemaString = "INN_SALE_FROM_SELLER KPP_SALE_FROM_SELLER INN_PURCHASE_FROM_SELLER KPP_PURCHASE_FROM_SELLER SUM_TABLE_PURCHASE NDS_TABLE_PURCHASE INN_PURCHASE_FROM_BUYER KPP_PURCHASE_FROM_BUYER " +
+                "INN_SALE_FROM_BUYER KPP_SALE_FROM_BUYER SUM_TABLE_SALE NDS_TABLE_SALE";*/
+
+       // tableWithMistakes.schema() = sqlContext.createDataFrame(tableWithMistakes,schemaString);
+        tableWithMistakes.write()
+                .format("com.databricks.spark.csv")
+                .option("inferSchema","true")
+                .option("header","true")
+                .option("charset", "UTF-8")
+                .option("delimiter", ",")
+                .option("quote", "\'")
+                .mode(SaveMode.Overwrite).save(args[2] + "result.csv");
+
     }
 }
